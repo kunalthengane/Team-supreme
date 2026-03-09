@@ -1,6 +1,7 @@
 // API configuration and base URL
-// Default to the backend dev server port (3001) — set `VITE_API_URL` in your env to override.
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+// In production (Render) set `VITE_API_URL` to the backend URL (e.g. https://my-backend.onrender.com)
+// If `VITE_API_URL` is not set the client will use relative paths (same-origin).
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 export interface ApiComplaint {
   _id: string;

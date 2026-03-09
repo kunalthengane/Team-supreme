@@ -1,0 +1,30 @@
+# Render configuration for deploying frontend and backend services
+# Frontend: Static site built with Vite (publish `dist`)
+# Backend: Python Flask app (runs with gunicorn)
+
+services:
+  - type: static_site
+    name: team-supreme-frontend
+    env: static
+    # build from repo root
+    root: .
+    buildCommand: npm install && npm run build
+    publishPath: dist
+    # set these environment variables in Render dashboard or via `render.yaml` secret config
+    envVars:
+      - key: VITE_API_URL
+        value: "https://<your-backend-service>.onrender.com" # update after backend deploy
+
+  - type: web
+    name: team-supreme-backend
+    env: python
+    root: backend/flask_service
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -w 4 -b 0.0.0.0:$PORT app:app
+    plan: free
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      # Optional: set DATABASE_URL, SUPABASE_URL, SUPABASE_KEY, etc.
+      # - key: DATABASE_URL
+      #   value: "postgres://..."
