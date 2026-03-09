@@ -1,5 +1,6 @@
 import express from 'express';
 import supabase from '../supabaseClient.js';
+import analyzeSentiment from '../sentiment.js';
 
 const router = express.Router();
 
@@ -18,6 +19,8 @@ function mapRow(row) {
     resolution: row.resolution,
     attachments: row.attachments,
     supportCount: row.support_count ?? 0,
+    sentimentScore: row.sentiment_score ?? 0,
+    sentimentLabel: row.sentiment_label ?? 'Neutral',
   };
 }
 
@@ -45,6 +48,9 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ success: false, message: 'Missing required fields' });
   }
 
+  // Analyze sentiment for the complaint description
+  const { score: sentimentScore, label: sentimentLabel } = analyzeSentiment(description);
+
   const { data, error } = await supabase.from('complaints').insert([
     {
       title,
@@ -53,6 +59,8 @@ router.post('/', async (req, res) => {
       severity,
       submitted_by: submittedBy,
       attachments,
+      sentiment_score: sentimentScore,
+      sentiment_label: sentimentLabel,
     },
   ]).select().single();
 
